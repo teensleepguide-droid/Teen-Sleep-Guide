@@ -7,6 +7,7 @@ import { Moon, ArrowLeft, Brain, Zap, Trophy, Clock, Sun, Phone, Book, Users, Ac
 
 const Guide = () => {
   const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
   const [activeSection, setActiveSection] = useState('routine');
   const [routineInputs, setRoutineInputs] = useState({
     wakeUpTime: '07:00',
@@ -411,7 +412,7 @@ const Guide = () => {
             <Moon className="w-5 h-5 text-blue-400" />
             <span className="text-lg font-semibold text-white">Teen Sleep Guide</span>
           </div>
-          <p className="text-slate-500">© 2024 Teen Sleep Guide. Helping teens sleep better, one night at a time.</p>
+          <p className="text-slate-500">© {currentYear} Teen Sleep Guide. Helping teens sleep better, one night at a time.</p>
         </div>
       </footer>
     </div>
