@@ -1,81 +1,248 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ReactGA from 'react-ga4';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Moon, ArrowLeft, Brain, Zap, Trophy, Clock, Sun, Phone, Book, Users, Activity, Lightbulb } from 'lucide-react';
+import { Moon, ArrowLeft, Brain, Zap, Trophy, Clock, Sun, Phone, Book, Users, Activity, Lightbulb, ListChecks } from 'lucide-react';
 
 const Guide = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('focus');
+  const [activeSection, setActiveSection] = useState('routine');
+  const [routineInputs, setRoutineInputs] = useState({
+    wakeUpTime: '07:00',
+    schoolStartTime: '08:30',
+    homework: true,
+    exercise: false,
+    screenTime: true,
+    sleepTarget: 9,
+  });
+  const [routineSteps, setRoutineSteps] = useState([]);
+
+  const parseTime = (value) => {
+    const [hours, minutes] = value.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const formatTime = (minutes) => {
+    const normalized = ((minutes % 1440) + 1440) % 1440;
+    const hrs = Math.floor(normalized / 60);
+    const mins = normalized % 60;
+    const period = hrs >= 12 ? 'PM' : 'AM';
+    const displayHour = hrs % 12 === 0 ? 12 : hrs % 12;
+    return `${displayHour}:${mins.toString().padStart(2, '0')} ${period}`;
+  };
+
+  const updateRoutineInput = (field, value) => {
+    setRoutineInputs((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const generateRoutine = () => {
+    ReactGA.event({
+      category: 'engagement',
+      action: 'generate_routine',
+      label: 'routine_generated'
+    });
+
+    const wake = parseTime(routineInputs.wakeUpTime);
+    const sleepMinutes = Math.round(Number(routineInputs.sleepTarget) * 60);
+    const bedtime = wake - sleepMinutes;
+    const screensOff = bedtime - (routineInputs.screenTime ? 45 : 30);
+    const windDown = bedtime - 30;
+    const finalize = bedtime - 15;
+    const steps = [];
+
+    steps.push({ time: wake, label: `Wake up at ${formatTime(wake)}` });
+    steps.push({ time: screensOff - 90, label: 'Wrap up homework and organize your school bag' });
+
+    if (routineInputs.exercise) {
+      steps.push({ time: screensOff - 70, label: 'Do gentle stretching or light movement' });
+    }
+
+    steps.push({ time: screensOff, label: routineInputs.screenTime ? 'Turn screens off and switch to quiet activities' : 'Start calming, screen-free tasks' });
+    steps.push({ time: windDown, label: 'Begin wind-down: reading, journaling, or breathing exercises' });
+    steps.push({ time: finalize, label: 'Prepare your room: dim lights, set a cool temperature, and relax' });
+    steps.push({ time: bedtime, label: `Lights out and aim to be asleep by ${formatTime(bedtime)}` });
+
+    setRoutineSteps(steps.sort((a, b) => a.time - b.time));
+  };
 
   const focusContent = [
     {
       icon: Brain,
       title: 'Memory Consolidation',
-      description: 'During sleep, your brain processes and stores information from the day. Quality sleep can improve memory retention by up to 40%.'
+      description: 'During sleep, your brain processes and stores information from the day. Quality sleep can improve memory retention by up to 40%.',
     },
     {
       icon: Zap,
       title: 'Enhanced Concentration',
-      description: 'Well-rested teens show 25% better focus and attention span in class compared to sleep-deprived peers.'
+      description: 'Well-rested teens show 25% better focus and attention span in class compared to sleep-deprived peers.',
     },
     {
       icon: Trophy,
       title: 'Academic Performance',
-      description: 'Students who maintain consistent sleep schedules average one full letter grade higher than those with irregular sleep patterns.'
+      description: 'Students who maintain consistent sleep schedules average one full letter grade higher than those with irregular sleep patterns.',
     },
     {
       icon: Lightbulb,
       title: 'Creative Problem-Solving',
-      description: "Quality sleep enhances your brain's ability to make connections and solve complex problems creatively."
-    }
+      description: "Quality sleep enhances your brain's ability to make connections and solve complex problems creatively.",
+    },
   ];
 
   const sleepTips = [
     {
       icon: Clock,
       title: 'The 3-Hour Wind-Down',
-      description: 'Start your bedtime routine 3 hours before sleep. Gradually dim lights, reduce screen time, and shift to calming activities.'
+      description: 'Start your bedtime routine 3 hours before sleep. Gradually dim lights, reduce screen time, and shift to calming activities.',
     },
     {
       icon: Sun,
       title: 'Light Management',
-      description: 'Reduce blue light exposure 2 hours before bed. Use night mode on devices or blue light blocking glasses.'
+      description: 'Reduce blue light exposure 2 hours before bed. Use night mode on devices or blue light blocking glasses.',
     },
     {
       icon: Phone,
       title: 'Tech-Free Zone',
-      description: 'Keep phones out of the bedroom. The bedroom should be associated only with sleep and relaxation.'
+      description: 'Keep phones out of the bedroom. The bedroom should be associated only with sleep and relaxation.',
     },
     {
       icon: Book,
       title: 'Evening Routine Ritual',
-      description: 'Create a consistent 30-minute routine: light reading, journaling, or gentle stretching to signal your body it\'s time to sleep.'
-    }
+      description: 'Create a consistent 30-minute routine: light reading, journaling, or gentle stretching to signal your body it\'s time to sleep.',
+    },
   ];
 
   const healthResources = [
     {
       icon: Users,
       title: 'Teen Sleep Science',
-      description: 'Teenagers need 8-10 hours of sleep due to ongoing brain development. Your circadian rhythm naturally shifts later during adolescence.'
+      description: 'Teenagers need 8-10 hours of sleep due to ongoing brain development. Your circadian rhythm naturally shifts later during adolescence.',
     },
     {
       icon: Activity,
       title: 'Physical Health Connection',
-      description: 'Poor sleep affects hormone regulation, immune function, and metabolism. Quality sleep reduces stress and improves overall health.'
+      description: 'Poor sleep affects hormone regulation, immune function, and metabolism. Quality sleep reduces stress and improves overall health.',
     },
     {
       icon: Brain,
       title: 'Mental Health Support',
-      description: 'Sleep deprivation increases risk of anxiety and depression. Prioritizing sleep is one of the most effective mental health strategies.'
+      description: 'Sleep deprivation increases risk of anxiety and depression. Prioritizing sleep is one of the most effective mental health strategies.',
     },
     {
       icon: Lightbulb,
       title: 'Lifestyle Balance',
-      description: 'Balance school, activities, and social life with sleep. Sometimes saying no to late-night events is saying yes to your health.'
-    }
+      description: 'Balance school, activities, and social life with sleep. Sometimes saying no to late-night events is saying yes to your health.',
+    },
   ];
+
+  const renderBuilder = () => {
+    return (
+      <div className="space-y-8">
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+                  <ListChecks className="w-7 h-7 text-blue-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl text-white">Nightly Routine Builder</CardTitle>
+                  <p className="text-slate-400 mt-2">Turn your schedule into an actionable plan with exact times for each step.</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="space-y-2 text-slate-300">
+                  <span>Wake-up time</span>
+                  <input
+                    type="time"
+                    value={routineInputs.wakeUpTime}
+                    onChange={(e) => updateRoutineInput('wakeUpTime', e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-white"
+                  />
+                </label>
+                <label className="space-y-2 text-slate-300">
+                  <span>School start time</span>
+                  <input
+                    type="time"
+                    value={routineInputs.schoolStartTime}
+                    onChange={(e) => updateRoutineInput('schoolStartTime', e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-white"
+                  />
+                </label>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="flex items-center gap-3 text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={routineInputs.homework}
+                    onChange={(e) => updateRoutineInput('homework', e.target.checked)}
+                    className="h-5 w-5 rounded border-slate-700 bg-slate-900 text-blue-500"
+                  />
+                  Include homework time
+                </label>
+                <label className="flex items-center gap-3 text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={routineInputs.exercise}
+                    onChange={(e) => updateRoutineInput('exercise', e.target.checked)}
+                    className="h-5 w-5 rounded border-slate-700 bg-slate-900 text-blue-500"
+                  />
+                  Include light evening exercise
+                </label>
+              </div>
+
+              <div className="space-y-2 text-slate-300">
+                <label className="block">Target sleep hours</label>
+                <input
+                  type="range"
+                  min="8"
+                  max="10"
+                  step="0.5"
+                  value={routineInputs.sleepTarget}
+                  onChange={(e) => updateRoutineInput('sleepTarget', e.target.value)}
+                  className="w-full"
+                />
+                <div className="text-sm text-slate-400">Target: {routineInputs.sleepTarget} hours</div>
+              </div>
+
+              <Button
+                onClick={generateRoutine}
+                className="w-full px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all"
+              >
+                Generate Plan
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-2xl text-white">Your step-by-step plan</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {routineSteps.length === 0 ? (
+                <p className="text-slate-400">Generate a routine to see a clear nightly timeline.</p>
+              ) : (
+                <div className="space-y-4">
+                  {routineSteps.map((step, index) => (
+                    <div key={index} className="rounded-3xl border border-slate-700 bg-slate-950/70 p-5">
+                      <div className="text-sm uppercase tracking-[0.2em] text-slate-500">Step {index + 1}</div>
+                      <div className="mt-2 flex items-center justify-between gap-4">
+                        <p className="text-lg font-semibold text-white">{step.label}</p>
+                        <span className="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-200">{formatTime(step.time)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
 
   const renderContent = () => {
     let content = [];
@@ -90,6 +257,19 @@ const Guide = () => {
       content = sleepTips;
       sectionTitle = 'Sleep Improvement Tips';
       sectionDescription = 'The secret is what you do BEFORE bed – these strategies will transform your sleep';
+    } else if (activeSection === 'routine') {
+      sectionTitle = 'Sleep Routine Builder';
+      sectionDescription = 'Create a custom nightly plan that feels like a step-by-step routine instead of vague advice.';
+      return (
+        <div className="space-y-8">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-white">{sectionTitle}</h2>
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto">{sectionDescription}</p>
+            <div className="w-20 h-1 bg-gradient-to-r from-blue-400 to-indigo-400 mx-auto"></div>
+          </div>
+          {renderBuilder()}
+        </div>
+      );
     } else {
       content = healthResources;
       sectionTitle = 'Teen Health Resources';
@@ -177,6 +357,16 @@ const Guide = () => {
               }`}
             >
               Sleep Improvement Tips
+            </Button>
+            <Button
+              onClick={() => setActiveSection('routine')}
+              className={`px-6 py-6 text-lg rounded-lg transition-all ${
+                activeSection === 'routine'
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
+                  : 'bg-slate-800/50 hover:bg-slate-700 text-slate-300 border border-slate-700'
+              }`}
+            >
+              Routine Builder
             </Button>
             <Button
               onClick={() => setActiveSection('health')}
