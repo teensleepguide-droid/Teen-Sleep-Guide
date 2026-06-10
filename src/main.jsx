@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import ReactGA from 'react-ga4';
 import App from './App';
 import './index.css';
@@ -10,8 +10,8 @@ ReactGA.initialize('GA_MEASUREMENT_ID'); // Replace with your actual GA4 Measure
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter basename="/Teen-Sleep-Guide">
+    <HashRouter basename="/Teen-Sleep-Guide">
       <App />
-    </BrowserRouter>
+    </HashRouter>
   </React.StrictMode>
 );

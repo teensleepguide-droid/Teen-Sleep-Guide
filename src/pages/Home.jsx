@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ReactGA from 'react-ga4';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -54,7 +54,7 @@ const Home = () => {
           <nav className="hidden md:flex gap-8 text-slate-300">
             <a href="#about" className="hover:text-blue-400 transition-colors">About</a>
             <a href="#services" className="hover:text-blue-400 transition-colors">Services</a>
-            <a href="/research" className="hover:text-blue-400 transition-colors">Research</a>
+            <Link to="/research" className="hover:text-blue-400 transition-colors">Research</Link>
             <a href="#calculator" className="hover:text-blue-400 transition-colors">Calculator</a>
             <a href="#contact" className="hover:text-blue-400 transition-colors">Contact</a>
           </nav>
